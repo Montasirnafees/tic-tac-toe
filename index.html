@@ -24,23 +24,22 @@
         <div class="cell" style="width:100px; height:90px; border:1px solid #1a1630; display:flex; align-items:center; justify-content:center; font-size:2rem; cursor:pointer;background-color: #1e375484;"></div>
     </div>
 <div class="game-controls">
-<div style="display: flex; gap: 10px; align-items: center;">
-<button class="game-btn" onclick="setMode('PVP')">
-    Human vs Human
-</button>
+    <div class="mode-buttons">
+        <button class="game-btn" onclick="setMode('PVP')">Player vs Player</button>
+        <button class="game-btn" onclick="setMode('PVAI')">Player vs 🤖</button>
+    </div>
 
-<button class="game-btn" onclick="setMode('PVAI')">
-    Player vs 🤖
-</button>
+    <select class="difficulty" onchange="setDifficulty(this.value)">
+        <option value="easy">Easy</option>
+        <option value="Medium">Medium</option>
+        <option value="hard">Hard</option>
+    </select>
 
-<button class="game-btn restart-btn" onclick="setMode('PVP')">
-    🔄 Restart Game
-</button>
+    <button class="game-btn restart-btn" onclick="setMode('PVP')">
+        🔄 Restart 
+    </button>
 </div>
 
-
-    <div class="status" id="status"></div>
-</div>
 
 <script src="script.js"></script>
 </body>
