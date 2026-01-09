@@ -68,7 +68,7 @@ function checkResult(){
             highlightWin(p);
             updateScore(board[a]);
             statusText.textContent = `Player ${board[a].toUpperCase()} Wins!`;
-            setTimeout(resetGame, 2000);
+            
             return true;
         }
     }
@@ -76,7 +76,7 @@ function checkResult(){
     if(!board.includes("")){
         statusText.textContent = "It's a Draw!";
         gameActive = false;
-        setTimeout(resetGame, 1500);
+        
         return true;
     }
     return false;
@@ -178,8 +178,15 @@ function startAIVsAI(){
 /* ------------------ UI HELPERS ------------------ */
 
 function highlightWin(pattern){
-    pattern.forEach(i=>cells[i].classList.add("win"));
+    const winner = board[pattern[0]]; // "x" or "o"
+
+    pattern.forEach(i=>{
+        cells[i].classList.add(
+            winner === "x" ? "win-x" : "win-o"
+        );
+    });
 }
+
 
 function updateScore(winner){
     if(winner === "x"){
