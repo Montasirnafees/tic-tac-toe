@@ -1,46 +1,57 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Tic Tac Toe – Classic Battle</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CYBER TIC TAC TOE</title>
+
+  <!-- CSS file -->
+  <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
-<div class="container">
-    <div class="title">TIC TAC TOE</div>
-    <div class="subtitle">CLASSIC BATTLE</div>
 
-        <!-- Tic Tac Toe Board -->
-    <div id="board" style="display:grid; grid-template-columns: repeat(3, 100px);  background-color:#1a1630; gap:5px; margin-top:20px;">
-        <div class="cell" style="width:100px; height:90px; border:1px solid #1a1630; display:flex; align-items:center; justify-content:center; font-size:2rem; cursor:pointer; background-color: #1e375484;"></div>
-        <div class="cell" style="width:100px; height:90px; border:1px solid #1a1630; display:flex; align-items:center; justify-content:center; font-size:2rem; cursor:pointer;background-color: #1e375484;"></div>
-        <div class="cell" style="width:100px; height:90px; border:1px solid #1a1630; display:flex; align-items:center; justify-content:center; font-size:2rem; cursor:pointer;background-color: #1e375484;"></div>
-        <div class="cell" style="width:100px; height:90px; border:1px solid #1a1630; display:flex; align-items:center; justify-content:center; font-size:2rem; cursor:pointer;background-color: #1e375484;"></div>
-        <div class="cell" style="width:100px; height:90px; border:1px solid #1a1630; display:flex; align-items:center; justify-content:center; font-size:2rem; cursor:pointer;background-color: #1e375484;"></div>
-        <div class="cell" style="width:100px; height:90px; border:1px solid #1a1630; display:flex; align-items:center; justify-content:center; font-size:2rem; cursor:pointer;background-color: #1e375484;"></div>
-        <div class="cell" style="width:100px; height:90px; border:1px solid #1a1630; display:flex; align-items:center; justify-content:center; font-size:2rem; cursor:pointer;background-color: #1e375484;"></div>
-        <div class="cell" style="width:100px; height:90px; border:1px solid #1a1630; display:flex; align-items:center; justify-content:center; font-size:2rem; cursor:pointer;background-color: #1e375484;"></div>
-        <div class="cell" style="width:100px; height:90px; border:1px solid #1a1630; display:flex; align-items:center; justify-content:center; font-size:2rem; cursor:pointer;background-color: #1e375484;"></div>
-    </div>
-<div class="game-controls">
-    <div class="mode-buttons">
-        <button class="game-btn" onclick="setMode('PVP')">Player vs Player</button>
-        <button class="game-btn" onclick="setMode('PVAI')">Player vs 🤖</button>
-    </div>
-
-    <select class="difficulty" onchange="setDifficulty(this.value)">
-        <option value="easy">Easy</option>
-        <option value="Medium">Medium</option>
-        <option value="hard">Hard</option>
-    </select>
-
-    <button class="game-btn restart-btn" onclick="setMode('PVP')">
-        🔄 Restart 
+<div class="container menu active" id="menu">
+  <h1 class="logo">TIC TAC TOE</h1>
+  <div class="buttons">
+    <button class="big" onclick="startGame('pvp')">1 VS 1</button>
+    <button class="big" onclick="startGame('ai')">VS ROBOT</button>
+    <button class="big" onclick="alert('Online multiplayer coming soon! 🚀\n(Needs server + real-time backend)')">
+      PLAY ONLINE
     </button>
+  </div>
 </div>
 
+<div class="container game" id="game">
+  <h1 class="logo small">CYBER TAC</h1>
 
+  <div class="score">
+    <span>X: <span id="scoreX">0</span></span>
+    <span>O: <span id="scoreO">0</span></span>
+    <span>TIE: <span id="scoreT">0</span></span>
+  </div>
+
+  <div id="status">Select mode to start</div>
+  <div id="timer">Time: 10s</div>
+
+  <div class="board" id="board">
+    <div class="cell" data-i="0"></div>
+    <div class="cell" data-i="1"></div>
+    <div class="cell" data-i="2"></div>
+    <div class="cell" data-i="3"></div>
+    <div class="cell" data-i="4"></div>
+    <div class="cell" data-i="5"></div>
+    <div class="cell" data-i="6"></div>
+    <div class="cell" data-i="7"></div>
+    <div class="cell" data-i="8"></div>
+  </div>
+
+  <div class="game-buttons">
+    <button class="big" id="newGameBtn">NEW GAME</button>
+    <button class="big" onclick="backToMenu()">MENU</button>
+  </div>
+</div>
+
+<!-- JS file -->
 <script src="script.js"></script>
 </body>
 </html>

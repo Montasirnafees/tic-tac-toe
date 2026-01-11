@@ -1,210 +1,107 @@
-const cells = document.querySelectorAll(".cell");
-const statusText = document.getElementById("status");
-const scoreXEl = document.getElementById("scoreX");
-const scoreOEl = document.getElementById("scoreO");
+const boardEl = document.getElementById('board');
+const cells = [...boardEl.children];
+const statusEl = document.getElementById('status');
+const timerEl = document.getElementById('timer');
+const scoreX = document.getElementById('scoreX');
+const scoreO = document.getElementById('scoreO');
+const scoreT = document.getElementById('scoreT');
+const newGameBtn = document.getElementById('newGameBtn');
 
-let board = ["","","","","","","","",""];
-let currentPlayer = "x";
-let gameActive = true;
+let board = Array(9).fill(null);
+let currentPlayer = 'X';
+let gameMode = null;
+let gameActive = false;
+let timer;
+let timeLeft = 10;
+let scores = { X:0, O:0, T:0 };
 
-let scoreX = 0;
-let scoreO = 0;
-
-let gameMode = "PVP";       // PVP | PVAI | AIVAI
-let difficulty = "easy";   // easy | hard
-
-const winPatterns = [
-    [0,1,2],[3,4,5],[6,7,8],
-    [0,3,6],[1,4,7],[2,5,8],
-    [0,4,8],[2,4,6]
+const winCombos = [
+  [0,1,2],[3,4,5],[6,7,8],
+  [0,3,6],[1,4,7],[2,5,8],
+  [0,4,8],[2,4,6]
 ];
 
-/* ------------------ MODE & DIFFICULTY ------------------ */
-
-function setMode(mode){
-    gameMode = mode;
-    resetGame();
-    if(mode === "AIVAI") startAIVsAI();
+function startGame(mode) {
+  gameMode = mode;
+  document.getElementById('menu').classList.remove('active');
+  document.getElementById('game').classList.add('active');
+  resetGame();
 }
 
-function setDifficulty(level){
-    difficulty = level;
+function backToMenu() {
+  document.getElementById('game').classList.remove('active');
+  document.getElementById('menu').classList.add('active');
+  clearInterval(timer);
 }
 
-/* ------------------ CELL CLICK ------------------ */
+function resetGame() {
+  board.fill(null);
+  currentPlayer = 'X';
+  gameActive = true;
+  cells.forEach(c => {
+    c.textContent = '';
+    c.className = 'cell';
+  });
+  statusEl.textContent = currentPlayer + " starts";
+  startTimer();
+  updateScores();
+}
 
-cells.forEach((cell, index)=>{
-    cell.addEventListener("click", ()=>{
-        if(!gameActive || board[index]) return;
-
-        if(gameMode === "PVAI" && currentPlayer === "o") return;
-        if(gameMode === "AIVAI") return;
-
-        makeMove(index);
-    });
-});
-
-/* ------------------ GAME LOGIC ------------------ */
-
-function makeMove(index){
-    board[index] = currentPlayer;
-    cells[index].textContent = currentPlayer.toUpperCase();
-    cells[index].classList.add(currentPlayer);
-
-    if(checkResult()) return;
-
-    currentPlayer = currentPlayer === "x" ? "o" : "x";
-
-    if(gameMode === "PVAI" && currentPlayer === "o"){
-        setTimeout(aiMove, 400);
+function startTimer() {
+  clearInterval(timer);
+  timeLeft = 10;
+  timerEl.textContent = `Time: ${timeLeft}s`;
+  timer = setInterval(() => {
+    timeLeft--;
+    timerEl.textContent = `Time: ${timeLeft}s`;
+    if (timeLeft <= 0) {
+      clearInterval(timer);
+      gameActive = false;
     }
+  }, 1000);
 }
 
-function checkResult(){
-    for(let p of winPatterns){
-        const [a,b,c] = p;
-        if(board[a] && board[a] === board[b] && board[a] === board[c]){
-            gameActive = false;
-            highlightWin(p);
-            updateScore(board[a]);
-            statusText.textContent = `Player ${board[a].toUpperCase()} Wins!`;
-            
-            return true;
-        }
-    }
-
-    if(!board.includes("")){
-        statusText.textContent = "It's a Draw!";
-        gameActive = false;
-        
-        return true;
-    }
-    return false;
+function updateScores() {
+  scoreX.textContent = scores.X;
+  scoreO.textContent = scores.O;
+  scoreT.textContent = scores.T;
 }
 
-/* ------------------ AI LOGIC ------------------ */
-
-function aiMove(){
-    if(!gameActive) return;
-
-    let move;
-    if(difficulty === "easy"){
-        move = randomMove();
-    } else {
-        move = minimax(board, "o").index;
-    }
-    makeMove(move);
+function checkWin(player) {
+  return winCombos.some(c => c.every(i => board[i] === player));
 }
 
-function randomMove(){
-    let empty = board
-        .map((v,i)=> v==="" ? i : null)
-        .filter(v=>v!==null);
-    return empty[Math.floor(Math.random()*empty.length)];
+function handleClick(e) {
+  const i = +e.target.dataset.i;
+  if (!gameActive || board[i]) return;
+  makeMove(i, currentPlayer);
 }
 
-/* ------------------ MINIMAX (UNBEATABLE) ------------------ */
+function makeMove(i, player) {
+  board[i] = player;
+  cells[i].textContent = player;
+  cells[i].classList.add(player.toLowerCase());
 
-function minimax(newBoard, player){
-    let availSpots = newBoard
-        .map((v,i)=> v==="" ? i : null)
-        .filter(v=>v!==null);
+  if (checkWin(player)) {
+    statusEl.textContent = `${player} wins!`;
+    scores[player]++;
+    updateScores();
+    gameActive = false;
+    return;
+  }
 
-    if(isWinner(newBoard, "x")) return {score:-10};
-    if(isWinner(newBoard, "o")) return {score:10};
-    if(availSpots.length === 0) return {score:0};
+  if (board.every(Boolean)) {
+    statusEl.textContent = "Draw!";
+    scores.T++;
+    updateScores();
+    gameActive = false;
+    return;
+  }
 
-    let moves = [];
-
-    for(let i=0;i<availSpots.length;i++){
-        let move = {};
-        move.index = availSpots[i];
-        newBoard[availSpots[i]] = player;
-
-        if(player === "o"){
-            let result = minimax(newBoard, "x");
-            move.score = result.score;
-        } else {
-            let result = minimax(newBoard, "o");
-            move.score = result.score;
-        }
-
-        newBoard[availSpots[i]] = "";
-        moves.push(move);
-    }
-
-    let bestMove;
-    if(player === "o"){
-        let bestScore = -Infinity;
-        moves.forEach((m,i)=>{
-            if(m.score > bestScore){
-                bestScore = m.score;
-                bestMove = i;
-            }
-        });
-    } else {
-        let bestScore = Infinity;
-        moves.forEach((m,i)=>{
-            if(m.score < bestScore){
-                bestScore = m.score;
-                bestMove = i;
-            }
-        });
-    }
-    return moves[bestMove];
+  currentPlayer = player === 'X' ? 'O' : 'X';
+  statusEl.textContent = currentPlayer + "'s turn";
+  startTimer();
 }
 
-function isWinner(b, player){
-    return winPatterns.some(p =>
-        b[p[0]] === player &&
-        b[p[1]] === player &&
-        b[p[2]] === player
-    );
-}
-
-/* ------------------ AI vs AI ------------------ */
-
-function startAIVsAI(){
-    let interval = setInterval(()=>{
-        if(!gameActive){
-            clearInterval(interval);
-            return;
-        }
-        aiMove();
-        currentPlayer = currentPlayer === "x" ? "o" : "x";
-    }, 500);
-}
-
-/* ------------------ UI HELPERS ------------------ */
-
-function highlightWin(pattern){
-    const winner = board[pattern[0]]; // "x" or "o"
-
-    pattern.forEach(i=>{
-        cells[i].classList.add(
-            winner === "x" ? "win-x" : "win-o"
-        );
-    });
-}
-
-
-function updateScore(winner){
-    if(winner === "x"){
-        scoreX++;
-        scoreXEl.textContent = scoreX;
-    } else {
-        scoreO++;
-        scoreOEl.textContent = scoreO;
-    }
-}
-
-function resetGame(){
-    board = ["","","","","","","","",""];
-    cells.forEach(c=>{
-        c.textContent="";
-        c.className="cell";
-    });
-    currentPlayer = "x";
-    gameActive = true;
-    statusText.textContent="";
-}
+cells.forEach(c => c.addEventListener('click', handleClick));
+newGameBtn.addEventListener('click', resetGame);
